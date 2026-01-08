@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+  labels:
+    app: backend
+spec:
+  replicas: 2  # Run 2 pods
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: hashicorp/http-echo:latest  # Simple echo server for testing
+        args:
+          - "-text=Hello from Backend API!"
+        ports:
+        - containerPort: 5678
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"

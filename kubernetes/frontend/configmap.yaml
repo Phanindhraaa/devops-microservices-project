@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>DevOps Microservices</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 800px;
+                margin: 50px auto;
+                padding: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            .container {
+                background: rgba(255,255,255,0.1);
+                padding: 30px;
+                border-radius: 10px;
+                backdrop-filter: blur(10px);
+            }
+            h1 { color: #fff; }
+            button {
+                background: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+                margin: 10px 5px;
+            }
+            button:hover { background: #45a049; }
+            #response {
+                margin-top: 20px;
+                padding: 15px;
+                background: rgba(0,0,0,0.3);
+                border-radius: 5px;
+                min-height: 50px;
+            }
+            .status { 
+                display: inline-block;
+                padding: 5px 10px;
+                border-radius: 3px;
+                margin: 5px;
+            }
+            .running { background: #4CAF50; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚀 DevOps Microservices Project</h1>
+            <p>A full-stack application running on Kubernetes with:</p>
+            <ul>
+                <li>Frontend (Nginx) - You are here!</li>
+                <li>Backend API (Node.js)</li>
+                <li>Database (MongoDB)</li>
+            </ul>
+            
+            <h2>Service Status:</h2>
+            <div>
+                <span class="status running">Frontend: Running</span>
+                <span class="status running">Backend: Running</span>
+            </div>
+            
+            <h2>Test Backend API:</h2>
+            <button onclick="testBackend()">Call Backend API</button>
+            <button onclick="testHealth()">Health Check</button>
+            
+            <div id="response"></div>
+        </div>
+        
+        <script>
+            function testBackend() {
+                document.getElementById('response').innerHTML = '<p>Calling backend...</p>';
+                fetch('/api/')
+                    .then(response => response.text())
+                    .then(data => {
+                        document.getElementById('response').innerHTML = 
+                            '<strong>Backend Response:</strong><br>' + data;
+                    })
+                    .catch(error => {
+                        document.getElementById('response').innerHTML = 
+                            '<strong>Error:</strong><br>' + error;
+                    });
+            }
+            
+            function testHealth() {
+                document.getElementById('response').innerHTML = 
+                    '<strong>Health Check:</strong><br>✅ Frontend is healthy!';
+            }
+        </script>
+    </body>
+    </html>
