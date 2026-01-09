@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: nginx:alpine
+        image: docker login -u phanindhrasura/frontend:latest
         ports:
         - containerPort: 80
         resources:

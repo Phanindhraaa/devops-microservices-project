@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Microservices - Task Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .status-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        .status {
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .status.online { background: #4CAF50; color: white; }
+        .status.offline { background: #f44336; color: white; }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .tasks {
+            margin-top: 20px;
+        }
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .task:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        .task-title {
+            flex: 1;
+            font-size: 1.1em;
+        }
+        .task-date {
+            color: #999;
+            font-size: 0.85em;
+            margin-right: 15px;
+        }
+        .delete-btn {
+            padding: 8px 15px;
+            background: #f44336;
+            font-size: 14px;
+        }
+        .delete-btn:hover {
+            background: #da190b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.2em;
+        }
+        .version {
+            text-align: center;
+            margin-top: 20px;
+            color: #999;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Task Manager</h1>
+        <p class="subtitle">DevOps Microservices Project - Kubernetes + CI/CD</p>
+        
+        <div class="status-bar">
+            <div class="status" id="frontend-status">Frontend: Checking...</div>
+            <div class="status" id="backend-status">Backend: Checking...</div>
+            <div class="status" id="database-status">Database: Checking...</div>
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="Enter a new task..." />
+            <button onclick="addTask()">Add Task</button>
+        </div>
+        
+        <div class="tasks" id="taskList"></div>
+        
+        <div class="version">
+            Frontend v1.0.0 | Backend API: <span id="backend-version">checking...</span>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000' 
+            : 'http://backend-service';
+        
+        // Check health
+        async function checkHealth() {
+            try {
+                document.getElementById('frontend-status').textContent = 'Frontend: Online';
+                document.getElementById('frontend-status').className = 'status online';
+                
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                document.getElementById('backend-status').textContent = 'Backend: Online';
+                document.getElementById('backend-status').className = 'status online';
+                
+                document.getElementById('database-status').textContent = 
+                    data.database === 'connected' ? 'Database: Connected' : 'Database: Disconnected';
+                document.getElementById('database-status').className = 
+                    data.database === 'connected' ? 'status online' : 'status offline';
+                    
+                const versionResponse = await fetch(`${API_URL}/`);
+                const versionData = await versionResponse.json();
+                document.getElementById('backend-version').textContent = versionData.version || 'unknown';
+            } catch (error) {
+                document.getElementById('backend-status').textContent = 'Backend: Offline';
+                document.getElementById('backend-status').className = 'status offline';
+                document.getElementById('database-status').textContent = 'Database: Unknown';
+                document.getElementById('database-status').className = 'status offline';
+            }
+        }
+        
+        // Load tasks
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_URL}/api/tasks`);
+                const tasks = await response.json();
+                
+                const taskList = document.getElementById('taskList');
+                
+                if (tasks.length === 0) {
+                    taskList.innerHTML = '<div class="empty-state">No tasks yet. Add one above! 📝</div>';
+                    return;
+                }
+                
+                taskList.innerHTML = tasks.map(task => `
+                    <div class="task">
+                        <span class="task-title">${task.title}</span>
+                        <span class="task-date">${new Date(task.createdAt).toLocaleString()}</span>
+                        <button class="delete-btn" onclick="deleteTask('${task._id}')">Delete</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                document.getElementById('taskList').innerHTML = 
+                    '<div class="empty-state">❌ Error connecting to backend</div>';
+            }
+        }
+        
+        // Add task
+        async function addTask() {
+            const input = document.getElementById('taskInput');
+            const title = input.value.trim();
+            
+            if (!title) return;
+            
+            try {
+                await fetch(`${API_URL}/api/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, completed: false })
+                });
+                
+                input.value = '';
+                loadTasks();
+            } catch (error) {
+                alert('Error adding task: ' + error.message);
+            }
+        }
+        
+        // Delete task
+        async function deleteTask(id) {
+            try {
+                await fetch(`${API_URL}/api/tasks/${id}`, { method: 'DELETE' });
+                loadTasks();
+            } catch (error) {
+                alert('Error deleting task: ' + error.message);
+            }
+        }
+        
+        // Enter key support
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+        
+        // Initialize
+        checkHealth();
+        loadTasks();
+        setInterval(checkHealth, 30000); // Check health every 30s
+    </script>
+</body>
+</html>

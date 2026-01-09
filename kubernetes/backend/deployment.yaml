@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: hashicorp/http-echo:latest  # Simple echo server for testing
+        image: docker login -u phanindhrasura/backend-api:latest
         args:
           - "-text=Hello from Backend API!"
         ports:
