@@ -16,11 +16,12 @@ spec:
     spec:
       containers:
       - name: backend
-        image: docker login -u phanindhrasura/backend-api:latest
-        args:
-          - "-text=Hello from Backend API!"
+        image: phanindhrasura/backend-api:latest
         ports:
-        - containerPort: 5678
+        - containerPort: 5000
+        env:
+        - name: MONGO_URI
+          value: "mongodb://admin:password123@mongodb-service:27017/devops_db?authSource=admin"
         resources:
           requests:
             memory: "64Mi"
@@ -28,3 +29,4 @@ spec:
           limits:
             memory: "128Mi"
             cpu: "200m"
+

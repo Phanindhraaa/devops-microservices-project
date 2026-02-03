@@ -11,4 +11,4 @@ spec:
   ports:
     - protocol: TCP
       port: 80        # Service port
-      targetPort: 5678  # Container port
+      targetPort: 5000  # Container port

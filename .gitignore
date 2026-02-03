@@ -16,3 +16,21 @@ venv/
 
 # OS
 .DS_Store
+
+# Node.js
+node_modules/
+npm-debug.log*
+package-lock.json
+.npm
+
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.backup
+*.bak

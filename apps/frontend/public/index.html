@@ -147,10 +147,10 @@
     </div>
     
     <script>
-        const API_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000' 
-            : 'http://backend-service';
-        
+        const API_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : '';
+
         // Check health
         async function checkHealth() {
             try {

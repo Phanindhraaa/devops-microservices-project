@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: docker login -u phanindhrasura/frontend:latest
+        image: phanindhrasura/frontend:latest
         ports:
         - containerPort: 80
         resources:
@@ -27,9 +27,14 @@ spec:
             memory: "128Mi"
             cpu: "100m"
         volumeMounts:
-        - name: nginx-config
+        - name: nginx-html
           mountPath: /usr/share/nginx/html
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
       volumes:
-      - name: nginx-config
+      - name: nginx-html
         configMap:
           name: frontend-html
+      - name: nginx-config
+        configMap: 
+          name: nginx-conf 
